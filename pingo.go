@@ -4,7 +4,11 @@
 
 // taken from http://golang.org/src/pkg/net/ipraw_test.go
 
-package ping
+// Copyright 2017 Daniel Skowronski. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package pingo
 
 import (
 	"bytes"
@@ -120,9 +124,15 @@ func parseICMPEcho(b []byte) (*icmpEcho, error) {
 	return p, nil
 }
 
-func Ping(address string, timeout int) bool {
-	err := Pinger(address, timeout)
-	return err == nil
+func Ping(address string, timeout int) (bool, error) {
+	status := Pinger(address, timeout)
+	if status==nil{
+		return true, nil
+	} else if neterr, ok := status.(net.Error); ok && neterr.Timeout() {
+		return false, nil
+	} else {
+		return false, status
+	}
 }
 
 func Pinger(address string, timeout int) error {
@@ -130,7 +140,7 @@ func Pinger(address string, timeout int) error {
 	if err != nil {
 		return err
 	}
-	c.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Second))
+	c.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond))
 	defer c.Close()
 
 	typ := icmpv4EchoRequest
