@@ -1,6 +1,6 @@
 # ping
 
-Ping using ICMP echo - adapted from golang test code
+Native ping using ICMP echo - adapted from golang test code. Works on Windows, Linux, MacOS and probably everywhere else.
 
 #### Demo
 ```go
